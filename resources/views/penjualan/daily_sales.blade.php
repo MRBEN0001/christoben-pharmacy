@@ -15,7 +15,6 @@
         <ul class="nav nav-tabs">
             <li><a href="{{ route('penjualan.index') }}">Sales List</a></li>
             <li class="active"><a href="{{ route('penjualan.daily_sales') }}">Daily Sales</a></li>
-            <li><a href="{{ route('penjualan.daily_room_sales') }}">Daily Room Sales</a></li>
         </ul>
     </div>
 </div>
@@ -96,7 +95,7 @@
                                     <td>{{ $transaction->receipt_number ?? '-' }}</td>
                                     <td class="text-center">{{ format_uang($transaction->total_item) }}</td>
                                     <td class="text-right">₦ {{ format_uang($transaction->total_harga) }}</td>
-                                    <td class="text-center">{{ $transaction->diskon }}%</td>
+                                    <td class="text-center">{{ format_uang($transaction->diskon) }}</td>
                                     <td class="text-right">₦ {{ format_uang($transaction->bayar) }}</td>
                                     <td>{{ $transaction->user->name ?? '-' }}</td>
                                 </tr>
@@ -105,7 +104,6 @@
                                 <tr>
                                     <td colspan="10" class="text-center">
                                         <strong>No sales found for {{ tanggal_indonesia($selectedDate, false) }}</strong>
-                                        <br><small>Check "Daily Room Sales" tab to see room sales</small>
                                     </td>
                                 </tr>
                             @endif

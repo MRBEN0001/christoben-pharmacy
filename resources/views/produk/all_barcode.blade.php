@@ -88,7 +88,7 @@
             <div class="row justify-content-center">
                 @foreach($dataproduk as $p)
                     @php
-                        $code = trim($p->kode_produk);
+                        $code = trim($p->barcode ?: $p->kode_produk);
                     @endphp
                     <div class="col-12 mb-4">
                         <div class="barcode-item p-3 border rounded text-center shadow-sm">

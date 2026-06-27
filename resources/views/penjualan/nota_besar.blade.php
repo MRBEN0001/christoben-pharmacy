@@ -33,6 +33,14 @@
             <td rowspan="4" width="60%">
                 <img src="{{ public_path($setting->path_logo) }}" alt="{{ $setting->path_logo }}" width="120">
                 <br>
+                @if($setting->nama_perusahaan)
+                    <strong>{{ strtoupper($setting->nama_perusahaan) }}</strong>
+                    <br>
+                @endif
+                @if(!empty($setting->deskripsi_perusahaan))
+                    {{ $setting->deskripsi_perusahaan }}
+                    <br>
+                @endif
                 {{ $setting->alamat }}
                 <br>
                 <br>
@@ -40,12 +48,10 @@
             <td>Date</td>
             <td>: {{ tanggal_indonesia(date('Y-m-d')) }}</td>
         </tr>
-        @if($penjualan->receipt_number)
         <tr>
             <td>Receipt ID</td>
             <td>: {{ $penjualan->receipt_number }}</td>
         </tr>
-        @endif
         @if($penjualan->room_unique_details)
         <tr>
             <td>Name</td>
@@ -74,7 +80,7 @@
                     <td>{{ $item->produk->kode_produk }}</td>
                     <td class="text-right">{{ format_uang($item->harga_jual) }}</td>
                     <td class="text-right">{{ format_uang($item->jumlah) }}</td>
-                    <td class="text-right">{{ $item->diskon }}</td>
+                    <td class="text-right">{{ format_uang($item->diskon) }}</td>
                     <td class="text-right">{{ format_uang($item->subtotal) }}</td>
                 </tr>
             @endforeach
@@ -86,7 +92,7 @@
             </tr>
             <tr>
                 <td colspan="6" class="text-right"><b>Discount</b></td>
-                <td class="text-right"><b>{{ $penjualan->diskon }}%</b></td>
+                <td class="text-right"><b>{{ format_uang($penjualan->diskon) }}</b></td>
             </tr>
             <tr>
                 <td colspan="6" class="text-right"><b>Total Pay</b></td>

@@ -19,6 +19,25 @@
                         </div>
                     </div>
                     <div class="form-group row">
+                        <label for="barcode" class="col-lg-2 col-lg-offset-1 control-label">Barcode</label>
+                        <div class="col-lg-6">
+                            <input type="text" name="barcode" id="barcode" class="form-control" placeholder="Scan or enter product barcode">
+                            <span class="help-block with-errors"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="id_section" class="col-lg-2 col-lg-offset-1 control-label">Section</label>
+                        <div class="col-lg-6">
+                            <select name="id_section" id="id_section" class="form-control" required>
+                                <option value="">Select Section</option>
+                                @foreach ($sections as $key => $item)
+                                <option value="{{ $key }}">{{ $item }}</option>
+                                @endforeach
+                            </select>
+                            <span class="help-block with-errors"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         <label for="id_kategori" class="col-lg-2 col-lg-offset-1 control-label">Category</label>
                         <div class="col-lg-6">
                             <select name="id_kategori" id="id_kategori" class="form-control" required>
@@ -30,13 +49,13 @@
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
-                    {{-- <div class="form-group row">
+                    <div class="form-group row">
                         <label for="merk" class="col-lg-2 col-lg-offset-1 control-label">Brand</label>
                         <div class="col-lg-6">
-                            <input type="text" name="merk" id="merk" class="form-control">
+                            <input type="text" name="merk" id="merk" class="form-control" placeholder="Enter product brand">
                             <span class="help-block with-errors"></span>
                         </div>
-                    </div> --}}
+                    </div>
                     {{-- <div class="form-group row">
                         <label for="harga_beli" class="col-lg-2 col-lg-offset-1 control-label">Purchase Price</label>
                         <div class="col-lg-6">
@@ -62,6 +81,13 @@
                         <label for="stok" class="col-lg-2 col-lg-offset-1 control-label">Stock</label>
                         <div class="col-lg-6">
                             <input type="number" name="stok" id="stok" class="form-control" required value="0">
+                            <span class="help-block with-errors"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="expiry_date" class="col-lg-2 col-lg-offset-1 control-label">Expiry Date</label>
+                        <div class="col-lg-6">
+                            <input type="date" name="expiry_date" id="expiry_date" class="form-control">
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>

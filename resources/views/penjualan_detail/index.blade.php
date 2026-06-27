@@ -37,6 +37,12 @@ Sales Transactions
 @endsection
 
 @section('content')
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ session('error') }}
+    </div>
+@endif
 <div class="row">
     <div class="col-lg-12">
         <div class="box">
@@ -45,12 +51,12 @@ Sales Transactions
                 <form class="form-produk">
                     @csrf
                     <div class="form-group row">
-                        <label for="kode_produk" class="col-lg-2">Product Code</label>
+                        <label for="kode_produk" class="col-lg-2">Barcode</label>
                         <div class="col-lg-5">
                             <div class="input-group">
                                 <input type="hidden" name="id_penjualan" id="id_penjualan" value="{{ $id_penjualan }}">
                                 <input type="hidden" name="id_produk" id="id_produk">
-                                <input type="text" class="form-control" name="kode_produk" id="kode_produk">
+                                <input type="text" class="form-control" name="kode_produk" id="kode_produk" placeholder="Scan barcode to add product" autofocus>
                                 <span class="input-group-btn">
                                     <button onclick="tampilProduk()" class="btn btn-success btn-flat" type="button"><i class="fa fa-search-plus"></i></button>
                                 </span>
@@ -66,7 +72,7 @@ Sales Transactions
                         <th>Name</th>
                         <th>Price</th>
                         <th width="15%">Quantity</th>
-                        <th>Discount</th>
+                        <th>Discount (₦)</th>
                         <th>Subtotal</th>
                         <th width="15%"><i class="fa fa-cog"></i></th>
                     </thead>
@@ -112,10 +118,10 @@ Sales Transactions
                                 <label for="diskon" class="col-lg-2 control-label">Discount</label>
                                 <div class="col-lg-8">
                                     <div class="input-group">
+                                        <span class="input-group-addon">₦</span>
                                         <input type="number" name="diskon" id="diskon" class="form-control" 
-                                            value="{{ isset($transactionDiskon) && $transactionDiskon > 0 ? $transactionDiskon : ($penjualan->diskon ?? (! empty($memberSelected->id_member) ? $diskon : 0)) }}" 
+                                            value="{{ $transactionDiskon ?? ($penjualan->diskon ?? 0) }}" 
                                             readonly>
-                                        <span class="input-group-addon">%</span>
                                     </div>
                                 </div>
                             </div>
@@ -185,10 +191,8 @@ Sales Transactions
             paginate: false
         })
         .on('draw.dt', function () {
-            // Update discount field with average discount from table items (for display/receipt only)
-            let avgDiskon = parseFloat($('.avg_diskon').text()) || 0;
-            $('#diskon').val(avgDiskon > 0 ? avgDiskon : ($('#diskon').val() || 0));
-            // Pass 0 to loadForm since item discounts are already applied in subtotals
+            let totalDiskon = parseFloat($('.total_diskon').text()) || 0;
+            $('#diskon').val(totalDiskon);
             loadForm(0);
             setTimeout(() => {
                 $('#diterima').trigger('input');
@@ -227,7 +231,12 @@ Sales Transactions
                     });
                 })
                 .fail(errors => {
-                    alert('Unable to save data');
+                    let message = 'Unable to save data';
+                    if (errors.responseJSON && errors.responseJSON.message) {
+                        message = errors.responseJSON.message;
+                    }
+                    alert(message);
+                    table.ajax.reload(() => loadForm(0));
                     return;
                 });
         });
@@ -236,15 +245,15 @@ Sales Transactions
         $(document).on('input', '.discount-input', function () {
             let id = $(this).data('id');
             let diskon = parseFloat($(this).val()) || 0;
+            let maxDiskon = parseFloat($(this).data('max')) || 0;
 
-            // Validate discount range
             if (diskon < 0) {
                 $(this).val(0);
                 diskon = 0;
             }
-            if (diskon > 100) {
-                $(this).val(100);
-                diskon = 100;
+            if (maxDiskon > 0 && diskon > maxDiskon) {
+                $(this).val(maxDiskon);
+                diskon = maxDiskon;
             }
 
             $.post(`{{ url('/transaksi') }}/${id}`, {
@@ -257,7 +266,12 @@ Sales Transactions
                     table.ajax.reload(() => loadForm(0));
                 })
                 .fail(errors => {
-                    alert('Unable to save discount');
+                    let message = 'Unable to save discount';
+                    if (errors.responseJSON && errors.responseJSON.message) {
+                        message = errors.responseJSON.message;
+                    }
+                    alert(message);
+                    table.ajax.reload(() => loadForm(0));
                     return;
                 });
         });
@@ -345,8 +359,19 @@ Sales Transactions
             }, 500);
 
             let errorMessage = '⚠️ Product not found or invalid barcode!';
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                errorMessage = '⚠️ ' + xhr.responseJSON.message;
+            if (xhr.responseJSON) {
+                if (typeof xhr.responseJSON === 'string') {
+                    errorMessage = '⚠️ ' + xhr.responseJSON;
+                } else if (xhr.responseJSON.message) {
+                    errorMessage = '⚠️ ' + xhr.responseJSON.message;
+                }
+            } else if (xhr.responseText) {
+                try {
+                    const parsed = JSON.parse(xhr.responseText);
+                    errorMessage = '⚠️ ' + (parsed.message || parsed);
+                } catch (e) {
+                    errorMessage = '⚠️ ' + xhr.responseText;
+                }
             }
             
             alert(errorMessage);
@@ -362,7 +387,6 @@ Sales Transactions
     function pilihMember(id, kode) {
         $('#id_member').val(id);
         $('#kode_member').val(kode);
-        $('#diskon').val('{{ $diskon }}');
         loadForm(0);
         $('#diterima').val(0).focus().select();
         hideMember();
@@ -563,7 +587,6 @@ Sales Transactions
     function pilihMember(id, kode) {
         $('#id_member').val(id);
         $('#kode_member').val(kode);
-        $('#diskon').val('{{ $diskon }}');
         loadForm(0);
         $('#diterima').val(0).focus().select();
         hideMember();
@@ -739,7 +762,6 @@ Sales Transactions
     function pilihMember(id, kode) {
         $('#id_member').val(id);
         $('#kode_member').val(kode);
-        $('#diskon').val('{{ $diskon }}');
         loadForm(0);
         $('#diterima').val(0).focus().select();
         hideMember();

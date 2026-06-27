@@ -18,12 +18,15 @@
             @foreach ($dataproduk as $produk)
                 <td class="text-center" style="border: 1px solid #333;">
                     <p>{{ $produk->nama_produk }} - $ {{ format_uang($produk->harga_jual) }}</p>
-                    <img src="data:image/png;base64,{{ DNS1D::getBarcodePNG($produk->kode_produk, 'C39') }}" 
-                        alt="{{ $produk->kode_produk }}"
+                    @php
+                        $barcodeValue = $produk->barcode ?: $produk->kode_produk;
+                    @endphp
+                    <img src="data:image/png;base64,{{ DNS1D::getBarcodePNG($barcodeValue, 'C39') }}" 
+                        alt="{{ $barcodeValue }}"
                         width="180"
                         height="60">
                     <br>
-                    {{ $produk->kode_produk }}
+                    {{ $barcodeValue }}
                 </td>
                 @if ($no++ % 3 == 0)
                     </tr><tr>

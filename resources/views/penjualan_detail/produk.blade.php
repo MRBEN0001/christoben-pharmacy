@@ -11,19 +11,27 @@
                     <thead>
                         <th width="5%">#</th>
                         <th>Code</th>
+                        <th>Barcode</th>
                         <th>Name</th>
                         <th>Purchase Price</th>
                         <th><i class="fa fa-cog"></i></th>
                     </thead>
                     <tbody>
                         @foreach ($produk as $key => $item)
-                            <tr class="{{ $item->stok == 0 ? 'danger' : '' }}">
+                            <tr class="{{ $item->stok <= 0 ? 'danger' : '' }}">
                                 <td width="5%">{{ $key+1 }}</td>
                                 <td><span class="label label-success">{{ $item->kode_produk }}</span></td>
+                                <td>
+                                    @if($item->barcode)
+                                        <span class="label label-info">{{ $item->barcode }}</span>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
                                 <td>{{ $item->nama_produk }}</td>
                                 <td>{{ $item->harga_beli }}</td>
                                 <td>
-                                    @if($item->stok == 0)
+                                    @if($item->stok <= 0)
                                         <span class="label label-danger">SOLD OUT</span>
                                     @else
                                         <a href="#" class="btn btn-primary btn-xs btn-flat"

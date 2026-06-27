@@ -10,31 +10,46 @@
 @endsection
 
 @section('content')
-<div class="row">
-    <div class="col-lg-12">
-        <ul class="nav nav-tabs">
-            <li class="active"><a href="{{ route('penjualan.index') }}">Sales List</a></li>
-            <li><a href="{{ route('penjualan.daily_sales') }}">Daily Sales</a></li>
-            <li><a href="{{ route('penjualan.daily_room_sales') }}">Daily Room Sales</a></li>
-        </ul>
-    </div>
-</div>
-<br>
+<style>
+    .sales-report-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    .sales-report-toolbar select {
+        min-width: 180px;
+    }
+</style>
 
-@if($isFirstOfMonth && auth()->user()->level == 1)
 <div class="row">
     <div class="col-lg-12">
-        <div class="alert alert-info alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            <h4><i class="icon fa fa-info"></i> Monthly Sales Report Available!</h4>
-            <p>The monthly sales report for {{ date('F Y', strtotime($startDate)) }} is now available for download.</p>
-            <a href="{{ route('penjualan.monthly_report', ['startDate' => $startDate, 'endDate' => $endDate]) }}" class="btn btn-primary btn-lg" target="_blank">
-                <i class="fa fa-download"></i> Download Monthly Report PDF
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ session('error') }}
+            </div>
+        @endif
+        <div class="sales-report-toolbar">
+            <select id="report-section" class="form-control input-sm">
+                <option value="">All Sections</option>
+                @foreach ($sections as $id => $name)
+                    <option value="{{ $id }}">{{ $name }}</option>
+                @endforeach
+            </select>
+            <a href="#" onclick="downloadSalesReport('daily'); return false;" class="btn btn-success btn-flat">
+                <i class="fa fa-download"></i> Daily Report
+            </a>
+            <a href="#" onclick="downloadSalesReport('weekly'); return false;" class="btn btn-primary btn-flat">
+                <i class="fa fa-download"></i> Weekly Report
+            </a>
+            <a href="#" onclick="downloadSalesReport('monthly'); return false;" class="btn btn-info btn-flat">
+                <i class="fa fa-download"></i> Monthly Report
             </a>
         </div>
     </div>
 </div>
-@endif
 
 <div class="row">
     <div class="col-lg-12">
@@ -44,6 +59,7 @@
                     <thead>
                         <th width="5%">#</th>
                         <th>Date</th>
+                        <th>Section</th>
                         <th>Products</th>
                         <th>Category</th>
                         <th>Name</th>
@@ -61,13 +77,32 @@
         </div>
     </div>
 </div>
-<!-- visit "codeastro" for more projects! -->
+
 @includeIf('penjualan.detail')
 @endsection
 
 @push('scripts')
 <script>
     let table, table1;
+
+    function downloadSalesReport(type) {
+        let section = $('#report-section').val();
+        let url = '';
+
+        if (type === 'daily') {
+            url = '{{ route('penjualan.daily_sales_pdf') }}?date={{ date('Y-m-d') }}';
+        } else if (type === 'weekly') {
+            url = '{{ route('penjualan.weekly_report') }}?startDate={{ $weekStartDate }}&endDate={{ $weekEndDate }}';
+        } else {
+            url = '{{ route('penjualan.monthly_report') }}?startDate={{ $startDate }}&endDate={{ $endDate }}';
+        }
+
+        if (section) {
+            url += '&section=' + encodeURIComponent(section);
+        }
+
+        window.location.href = url;
+    }
 
     $(function () {
         table = $('.table-penjualan').DataTable({
@@ -77,10 +112,14 @@
             autoWidth: false,
             ajax: {
                 url: '{{ route('penjualan.data') }}',
+                data: function (d) {
+                    d.section = $('#report-section').val();
+                }
             },
             columns: [
                 {data: 'DT_RowIndex', searchable: false, sortable: false},
                 {data: 'tanggal'},
+                {data: 'section'},
                 {data: 'products'},
                 {data: 'category'},
                 {data: 'room_details'},
@@ -95,6 +134,10 @@
             ]
         });
 
+        $('#report-section').on('change', function () {
+            table.ajax.reload();
+        });
+
         table1 = $('.table-detail').DataTable({
             processing: true,
             bSort: false,
@@ -105,12 +148,18 @@
                 {data: 'nama_produk'},
                 {data: 'harga_jual'},
                 {data: 'jumlah'},
+                {data: 'diskon'},
                 {data: 'subtotal'},
             ]
         })
     });
 
     function showDetail(url) {
+        let section = $('#report-section').val();
+        if (section) {
+            url += (url.indexOf('?') > -1 ? '&' : '?') + 'section=' + encodeURIComponent(section);
+        }
+
         $('#modal-detail').modal('show');
 
         table1.ajax.url(url);

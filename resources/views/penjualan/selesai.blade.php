@@ -21,7 +21,7 @@
             </div>
             <div class="box-footer">
                 @if ($setting->tipe_nota == 1)
-                <button class="btn btn-warning btn-flat" onclick="notaKecil('{{ route('transaksi.nota_kecil') }}', 'Nota Kecil')">Print Invoice</button>
+                <button class="btn btn-warning btn-flat" onclick="notaKecil('{{ route('transaksi.nota_kecil') }}', ' ')">Print Invoice</button>
                 @else
                 <button class="btn btn-warning btn-flat" onclick="notaBesar('{{ route('transaksi.nota_besar') }}', 'Nota PDF')">Print Invoice</button>
                 @endif

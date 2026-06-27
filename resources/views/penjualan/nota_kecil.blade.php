@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Small Note</title>
+    <title> </title>
 
     <style>
         * {
@@ -28,11 +28,12 @@
         @media print {
             @page {
                 margin: 0;
-                /* Fixed long height so all content fits on one slip even online */
-                size: 75mm 200mm;
+                size: 75mm auto;
             }
             html, body {
                 width: 70mm;
+                margin: 0;
+                padding: 0;
             }
             .btn-print {
                 display: none;
@@ -40,22 +41,19 @@
         }
     </style>
 </head>
-<body onload="window.print()">
-    <button class="btn-print" style="position: absolute; right: 1rem; top: rem;" onclick="window.print()">Print</button>
+<body onload="printReceipt()">
+    <button class="btn-print" style="position: absolute; right: 1rem; top: rem;" onclick="printReceipt()">Print</button>
     <div class="text-center">
-        <h3 style="margin-bottom: 5px;">{{ strtoupper($setting->nama_perusahaan) }}</h3>
-        <p>{{ strtoupper(string: $setting->alamat) }}</p>
+        @include('partials.company-letterhead', ['variant' => 'receipt-small', 'showAddress' => true, 'uppercaseAddress' => true])
     </div>
     <br>
     <div>
         <p style="float: left;">{{ date('d-m-Y') }}</p>
-        <p style="float: right">{{ strtoupper(auth()->user()->name) }}</p>
+        <p style="float: right;">{{ strtoupper(auth()->user()->name) }}</p>
     </div>
     <div class="clear-both" style="clear: both;"></div>
     <p>No: {{ tambah_nol_didepan($penjualan->id_penjualan, 10) }}</p>
-    @if($penjualan->receipt_number)
     <p>Receipt ID: {{ $penjualan->receipt_number }}</p>
-    @endif
     @if($penjualan->room_unique_details)
     <p>Name: {{ strtoupper($penjualan->room_unique_details) }}</p>
     @endif
@@ -87,7 +85,7 @@
         </tr>
         <tr>
             <td>Discount:</td>
-            <td class="text-right">{{ $penjualan->diskon }}%</td>
+                <td class="text-right">{{ format_uang($penjualan->diskon) }}</td>
         </tr>
         <tr>
             <td>Total Pay:</td>
@@ -107,6 +105,11 @@
     <p class="text-center">-- THANK YOU --</p>
 
     <script>
+        function printReceipt() {
+            document.title = ' ';
+            window.print();
+        }
+
         let body = document.body;
         let html = document.documentElement;
         let height = Math.max(

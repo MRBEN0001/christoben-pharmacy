@@ -28,6 +28,13 @@
                         </div>
                     </div>
                     <div class="form-group row">
+                        <label for="deskripsi_perusahaan" class="col-lg-2 control-label">Company description</label>
+                        <div class="col-lg-6">
+                            <textarea name="deskripsi_perusahaan" class="form-control" id="deskripsi_perusahaan" rows="2" placeholder="e.g. Licensed pharmacy — quality medicines &amp; healthcare"></textarea>
+                            <span class="help-block with-errors">Shown on receipts and reports, before the address.</span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         <label for="telepon" class="col-lg-2 control-label">Telephone</label>
                         <div class="col-lg-6">
                             <input type="text" name="telepon" class="form-control" id="telepon" required>
@@ -123,6 +130,7 @@
         $.get('{{ route('setting.show') }}')
             .done(response => {
                 $('[name=nama_perusahaan]').val(response.nama_perusahaan);
+                $('[name=deskripsi_perusahaan]').val(response.deskripsi_perusahaan || '');
                 $('[name=telepon]').val(response.telepon);
                 $('[name=alamat]').val(response.alamat);
                 $('[name=diskon]').val(response.diskon);

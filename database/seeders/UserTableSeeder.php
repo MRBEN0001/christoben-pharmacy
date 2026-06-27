@@ -16,19 +16,20 @@ class UserTableSeeder extends Seeder
     {
         $users = array(
             [
-                'name' => 'OFEE',
-                'email' => 'ofeehotel@mail.com',
-                'password' => bcrypt('password@ofeehotel'),
+                'name' => 'Admin',
+                'email' => 'Admin@mail.com',
+                'password' => bcrypt('password@admin'),
                 'foto' => '/img/user.jpg',
                 'level' => 1
-            ],
-            [
-                'name' => 'CodeAstro',
-                'email' => 'astro@mail.com',
-                'password' => bcrypt('codeastro.com'),
-                'foto' => '/img/user.jpg',
-                'level' => 2
             ]
+            // ,
+            // [
+            //     'name' => 'CodeAstro',
+            //     'email' => 'astro@mail.com',
+            //     'password' => bcrypt('codeastro.com'),
+            //     'foto' => '/img/user.jpg',
+            //     'level' => 2
+            // ]
         );
 
         array_map(function (array $user) {

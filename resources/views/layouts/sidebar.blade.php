@@ -30,12 +30,17 @@
                 </a>
             </li>
             <li>
+                <a href="{{ route('section.index') }}">
+                    <i class="fa fa-th-large"></i> <span>Section</span>
+                </a>
+            </li>
+            <li>
                 {{-- Use direct URL so cashiers always hit /produk (read-only products page) --}}
                 <a href="{{ url('/produk') }}">
                     <i class="fa fa-cubes"></i> <span>Products</span>
                 </a>
             </li>
-            <li>
+            {{-- <li>
                 <a href="{{ route('member.index') }}">
                     <i class="fa fa-id-card"></i> <span>Member</span>
                 </a>
@@ -44,7 +49,7 @@
                 <a href="{{ route('supplier.index') }}">
                     <i class="fa fa-truck"></i> <span>Supplier</span>
                 </a>
-            </li>
+            </li> --}}
             <li class="header">TRANSACTION</li>
             {{-- <li>
                 <a href="{{ route('pengeluaran.index') }}">

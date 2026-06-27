@@ -96,7 +96,7 @@
                                     <td>{{ $transaction->receipt_number ?? '-' }}</td>
                                     <td class="text-center">{{ format_uang($transaction->total_item) }}</td>
                                     <td class="text-right">₦ {{ format_uang($transaction->total_harga) }}</td>
-                                    <td class="text-center">{{ $transaction->diskon }}%</td>
+                                    <td class="text-center">{{ format_uang($transaction->diskon) }}</td>
                                     <td class="text-right">₦ {{ format_uang($transaction->bayar) }}</td>
                                     <td>{{ $transaction->user->name ?? '-' }}</td>
                                 </tr>

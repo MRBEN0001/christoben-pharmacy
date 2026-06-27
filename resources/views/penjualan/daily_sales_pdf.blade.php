@@ -57,11 +57,12 @@
 </head>
 <body>
     <div class="header">
-        @if($setting && $setting->nama_perusahaan)
-        <h1 style="margin: 5px 0; font-size: 24px; font-weight: bold;">{{ strtoupper($setting->nama_perusahaan) }}</h1>
-        @endif
+        @include('partials.company-letterhead')
         <h2>DAILY SALES REPORT</h2>
-        <h4>{{ tanggal_indonesia($selectedDate, false) }}</h4>
+        <h4>{{ $generatedAt }}</h4>
+        @if(!empty($sectionName))
+        <p><strong>Section:</strong> {{ $sectionName }}</p>
+        @endif
     </div>
 
     @if($transactions->count() > 0)
@@ -70,7 +71,7 @@
         <thead>
             <tr>
                 <th width="3%">#</th>
-                <th width="12%">Time</th>
+                <th width="12%">Date &amp; Time</th>
                 <th width="20%">Products</th>
                 <th width="12%">Name</th>
                 <th width="15%">Receipt ID</th>
@@ -88,7 +89,7 @@
             @foreach ($transactions as $transaction)
                 <tr>
                     <td class="text-center">{{ $no++ }}</td>
-                    <td>{{ date('h:i:s A', strtotime($transaction->created_at)) }}</td>
+                    <td>{{ tanggal_indonesia($transaction->created_at, false) }}, {{ \Carbon\Carbon::parse($transaction->created_at)->format('h:i A') }}</td>
                     <td>
                         @php
                             $productNames = '';
@@ -109,7 +110,7 @@
                     <td>{{ $transaction->receipt_number ?? '-' }}</td>
                     <td class="text-center">{{ format_uang($transaction->total_item) }}</td>
                     <td class="text-right">{{ format_uang($transaction->total_harga) }}</td>
-                    <td class="text-center">{{ $transaction->diskon }}%</td>
+                    <td class="text-center">{{ format_uang($transaction->diskon) }}</td>
                     <td class="text-right">NGN {{ format_uang($transaction->bayar) }}</td>
                     <td>{{ $transaction->user ? $transaction->user->name : '-' }}</td>
                 </tr>
@@ -131,9 +132,6 @@
         </table>
     </div>
 
-    <div style="margin-top: 30px; text-align: center; color: #666; font-size: 10px;">
-        <p>Generated on: {{ tanggal_indonesia(date('Y-m-d'), false) }} at {{ date('H:i:s') }}</p>
-    </div>
 </body>
 </html>
 

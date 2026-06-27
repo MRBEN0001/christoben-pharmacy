@@ -22,6 +22,7 @@ use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\SectionController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PembelianController;
@@ -51,6 +52,7 @@ Route::group(['middleware' => 'auth'], function () {
     // ================== Product (for all authenticated users: admin + cashiers) ==================
     Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
     Route::get('/produk/data', [ProdukController::class, 'data'])->name('produk.data');
+    Route::get('/produk/take-stock', [ProdukController::class, 'takeStockPDF'])->name('produk.take_stock');
     Route::post('/produk/{id}/add-stock', [ProdukController::class, 'addStock'])->name('produk.add_stock');
     Route::post('/produk/add-product', [ProdukController::class, 'store'])->name('produk.add_product');
 
@@ -63,6 +65,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/penjualan/daily-room-sales', [PenjualanController::class, 'dailyRoomSales'])->name('penjualan.daily_room_sales');
         Route::get('/penjualan/daily-room-sales/pdf', [PenjualanController::class, 'dailyRoomSalesPDF'])->name('penjualan.daily_room_sales_pdf');
         Route::get('/penjualan/monthly-report', [PenjualanController::class, 'monthlyReportPDF'])->name('penjualan.monthly_report');
+        Route::get('/penjualan/weekly-report', [PenjualanController::class, 'weeklyReportPDF'])->name('penjualan.weekly_report');
+        Route::get('/penjualan/{id}/resume', [PenjualanController::class, 'resume'])->name('penjualan.resume');
         Route::get('/penjualan/{id}', [PenjualanController::class, 'show'])->name('penjualan.show');
     });
 
@@ -70,6 +74,10 @@ Route::group(['middleware' => 'auth'], function () {
          // ================== Category ==================
         Route::get('/kategori/data', [KategoriController::class, 'data'])->name('kategori.data');
         Route::resource('/kategori', KategoriController::class);
+
+         // ================== Section ==================
+        Route::get('/section/data', [SectionController::class, 'data'])->name('section.data');
+        Route::resource('/section', SectionController::class);
 
             // ================== Product (Admin Only Actions) ==================
 

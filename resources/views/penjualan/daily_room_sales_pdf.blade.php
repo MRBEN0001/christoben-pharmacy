@@ -57,9 +57,7 @@
 </head>
 <body>
     <div class="header">
-        @if($setting && $setting->nama_perusahaan)
-        <h1 style="margin: 5px 0; font-size: 24px; font-weight: bold;">{{ strtoupper($setting->nama_perusahaan) }}</h1>
-        @endif
+        @include('partials.company-letterhead')
         <h2>DAILY ROOM SALES REPORT</h2>
         <h4>{{ tanggal_indonesia($selectedDate, false) }}</h4>
     </div>
@@ -109,7 +107,7 @@
                     <td>{{ $transaction->receipt_number ?? '-' }}</td>
                     <td class="text-center">{{ format_uang($transaction->total_item) }}</td>
                     <td class="text-right">{{ format_uang($transaction->total_harga) }}</td>
-                    <td class="text-center">{{ $transaction->diskon }}%</td>
+                    <td class="text-center">{{ format_uang($transaction->diskon) }}</td>
                     <td class="text-right">NGN {{ format_uang($transaction->bayar) }}</td>
                     <td>{{ $transaction->user ? $transaction->user->name : '-' }}</td>
                 </tr>
