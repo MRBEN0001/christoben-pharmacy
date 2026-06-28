@@ -44,7 +44,7 @@
 <body onload="printReceipt()">
     <button class="btn-print" style="position: absolute; right: 1rem; top: rem;" onclick="printReceipt()">Print</button>
     <div class="text-center">
-        @include('partials.company-letterhead', ['variant' => 'receipt-small', 'showAddress' => true, 'uppercaseAddress' => true])
+        @include('partials.company-letterhead', ['variant' => 'receipt-small', 'showAddress' => true, 'uppercaseAddress' => true, 'uppercasePhone' => true])
     </div>
     <br>
     <div>

@@ -11,3 +11,6 @@
 @if(!empty($showAddress) && !empty($setting->alamat))
     <p style="margin: 4px 0; {{ $addressStyle ?? '' }}">{{ ($uppercaseAddress ?? false) ? strtoupper($setting->alamat) : $setting->alamat }}</p>
 @endif
+@if(!empty($showAddress) && !empty($setting->telepon))
+    <p style="margin: 4px 0; {{ $phoneStyle ?? '' }}">{{ ($uppercasePhone ?? false) ? strtoupper($setting->telepon) : $setting->telepon }}</p>
+@endif

@@ -43,6 +43,10 @@
                 @endif
                 {{ $setting->alamat }}
                 <br>
+                @if(!empty($setting->telepon))
+                    {{ $setting->telepon }}
+                    <br>
+                @endif
                 <br>
             </td>
             <td>Date</td>
