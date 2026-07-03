@@ -56,13 +56,13 @@
                             <span class="help-block with-errors"></span>
                         </div>
                     </div>
-                    {{-- <div class="form-group row">
+                    <div class="form-group row">
                         <label for="harga_beli" class="col-lg-2 col-lg-offset-1 control-label">Purchase Price</label>
                         <div class="col-lg-6">
-                            <input type="number" name="harga_beli" id="harga_beli" class="form-control" required>
+                            <input type="number" name="harga_beli" id="harga_beli" class="form-control" value="0">
                             <span class="help-block with-errors"></span>
                         </div>
-                    </div> --}}
+                    </div>
                     <div class="form-group row">
                         <label for="harga_jual" class="col-lg-2 col-lg-offset-1 control-label">Selling Price</label>
                         <div class="col-lg-6">

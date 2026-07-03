@@ -149,7 +149,7 @@ Sales Transactions
             </div>
 
             <div class="box-footer">
-                <button type="submit" class="btn btn-success btn-sm btn-flat pull-right btn-simpan"><i class="fa fa-floppy-o"></i> Save Transaction</button>
+                <button type="submit" class="btn btn-success btn-sm btn-flat pull-right btn-simpan"><i class="fa fa-shopping-cart"></i> Check Out</button>
             </div>
         </div>
     </div>
@@ -285,7 +285,16 @@ Sales Transactions
         });
 
         // ✅ Submit transaction
-        $('.btn-simpan').on('click', function () {
+        $('.btn-simpan').on('click', function (e) {
+            var diterima = parseFloat($('#diterima').val());
+
+            if (isNaN(diterima) || diterima <= 0) {
+                e.preventDefault();
+                alert('Please enter the amount received before checking out.');
+                $('#diterima').focus().select();
+                return;
+            }
+
             $('.form-penjualan').submit();
         });
 

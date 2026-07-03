@@ -14,7 +14,7 @@ class ProdukController extends Controller
     private function expiredProductsCount(): int
     {
         return Produk::whereNotNull('expiry_date')
-            ->whereDate('expiry_date', '<', now()->toDateString())
+            ->whereDate('expiry_date', '<=', now()->toDateString())
             ->count();
     }
 
@@ -26,8 +26,8 @@ class ProdukController extends Controller
     private function soonToExpireProductsCount(): int
     {
         return Produk::whereNotNull('expiry_date')
-            ->whereDate('expiry_date', '>=', now()->toDateString())
-            ->whereDate('expiry_date', '<=', now()->addDays(30)->toDateString())
+            ->whereDate('expiry_date', '>', now()->toDateString())
+            ->whereDate('expiry_date', '<=', now()->addDays(180)->toDateString())
             ->count();
     }
 
@@ -70,7 +70,7 @@ class ProdukController extends Controller
 
         if ($request->filter_expired === 'expired') {
             $query->whereNotNull('produk.expiry_date')
-                ->whereDate('produk.expiry_date', '<', now()->toDateString());
+                ->whereDate('produk.expiry_date', '<=', now()->toDateString());
         }
 
         if ($request->filter_out_of_stock === 'out_of_stock') {
@@ -79,8 +79,8 @@ class ProdukController extends Controller
 
         if ($request->filter_soon_to_expire === 'soon_to_expire') {
             $query->whereNotNull('produk.expiry_date')
-                ->whereDate('produk.expiry_date', '>=', now()->toDateString())
-                ->whereDate('produk.expiry_date', '<=', now()->addDays(30)->toDateString());
+                ->whereDate('produk.expiry_date', '>', now()->toDateString())
+                ->whereDate('produk.expiry_date', '<=', now()->addDays(180)->toDateString());
         }
 
         if ($request->filter_soon_out_of_stock === 'soon_out_of_stock') {
@@ -169,7 +169,7 @@ class ProdukController extends Controller
                     return '<span class="label label-danger">'. $date .' (Expired)</span>';
                 }
 
-                if ($expiry->lte(now()->addDays(30))) {
+                if ($expiry->lte(now()->addDays(180))) {
                     return '<span class="label label-warning">'. $date .' (Soon)</span>';
                 }
 
@@ -208,6 +208,7 @@ class ProdukController extends Controller
             'barcode' => 'nullable|string|max:255|unique:produk,barcode',
             'id_kategori' => 'required|exists:kategori,id_kategori',
             'id_section' => 'required|exists:section,id_section',
+            'harga_beli' => 'nullable|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
             'diskon' => 'nullable|numeric|min:0|max:100',
             'stok' => 'required|integer|min:0',
@@ -261,6 +262,7 @@ class ProdukController extends Controller
             'barcode' => 'nullable|string|max:255|unique:produk,barcode,' . $id . ',id_produk',
             'id_kategori' => 'required|exists:kategori,id_kategori',
             'id_section' => 'required|exists:section,id_section',
+            'harga_beli' => 'nullable|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
             'diskon' => 'nullable|numeric|min:0|max:100',
             'stok' => 'required|integer|min:0',

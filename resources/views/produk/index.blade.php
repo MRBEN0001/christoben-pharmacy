@@ -173,8 +173,8 @@
                         </select>
                     </div>
                     <div id="soon-to-expire-filter-wrap" class="product-filter-wrap {{ $soonToExpireCount > 0 ? 'filter-warning-blink' : '' }}">
-                        <span class="filter-alert-dot" title="{{ $soonToExpireCount }} product(s) expiring within 30 days"></span>
-                        <select id="filter-soon-to-expire" class="form-control input-sm product-filter-select" title="Filter products expiring within 30 days">
+                        <span class="filter-alert-dot" title="{{ $soonToExpireCount }} product(s) expiring within 180 days"></span>
+                        <select id="filter-soon-to-expire" class="form-control input-sm product-filter-select" title="Filter products expiring within 180 days">
                             <option value="">Soon Expire: All</option>
                             <option value="soon_to_expire">Soon to Expire ({{ $soonToExpireCount }})</option>
                         </select>
@@ -286,7 +286,7 @@
         $('#filter-expired option[value="expired"]').text('Expired (' + expiredCount + ')');
 
         $soonToExpireWrap.toggleClass('filter-warning-blink', soonToExpireCount > 0);
-        $soonToExpireWrap.find('.filter-alert-dot').attr('title', soonToExpireCount + ' product(s) expiring within 30 days');
+        $soonToExpireWrap.find('.filter-alert-dot').attr('title', soonToExpireCount + ' product(s) expiring within 180 days');
         $('#filter-soon-to-expire option[value="soon_to_expire"]').text('Soon to Expire (' + soonToExpireCount + ')');
 
         $outOfStockWrap.toggleClass('filter-alert-blink', outOfStockCount > 0);
