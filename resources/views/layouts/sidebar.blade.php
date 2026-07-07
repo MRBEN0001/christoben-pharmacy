@@ -94,7 +94,43 @@
                     <i class="fa fa-cogs"></i> <span>Settings</span>
                 </a>
             </li>
+            @elseif (auth()->user()->isPicker())
+            {{-- Picker (e.g. Pharmacy): can only build a basket and send it to Provisions --}}
+            <li>
+                <a href="{{ route('transaksi.baru') }}">
+                    <i class="fa fa-cart-plus"></i> <span>New Sale</span>
+                </a>
+            </li>
+            @elseif (auth()->user()->isProvisions())
+            {{-- Provisions: receives baskets from pickers and checks out --}}
+            @php $incomingCount = \App\Models\Penjualan::where('handoff_status', 'pending_provisions')->count(); @endphp
+            <li>
+                <a href="{{ route('transaksi.incoming') }}">
+                    <i class="fa fa-inbox"></i> <span>Incoming</span>
+                    @if ($incomingCount > 0)
+                        <span class="pull-right-container">
+                            <small class="label pull-right bg-red">{{ $incomingCount }}</small>
+                        </span>
+                    @endif
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('transaksi.baru') }}">
+                    <i class="fa fa-cart-plus"></i> <span>New Sale</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('produk.index') }}">
+                    <i class="fa fa-cubes"></i> <span>Products</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('penjualan.index') }}">
+                    <i class="fa fa-dollar"></i> <span>Sales List</span>
+                </a>
+            </li>
             @else
+            {{-- Cashier with no assigned section: full sales access (backward compatible) --}}
             <li>
                 <a href="{{ route('produk.index') }}">
                     <i class="fa fa-cubes"></i> <span>Products</span>
@@ -110,11 +146,6 @@
                     <i class="fa fa-cart-plus"></i> <span>New Sale</span>
                 </a>
             </li>
-            {{-- <li>
-                <a href="{{ route('transaksi.index') }}">
-                    <i class="fa fa-cart-arrow-down"></i> <span>Active Transaction</span>
-                </a>
-            </li> --}}
             @endif
         </ul>
     </section>

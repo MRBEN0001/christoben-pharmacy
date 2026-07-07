@@ -153,6 +153,13 @@ Route::group(['middleware' => 'auth'], function () {
     
         // Save transaction
         Route::post('/transaksi/simpan', [PenjualanController::class, 'store'])->name('transaksi.simpan');
+
+        // Picker (Pharmacy) sends the current basket to Provisions
+        Route::post('/transaksi/kirim', [PenjualanController::class, 'sendToProvisions'])->name('transaksi.kirim');
+
+        // Provisions inbox of forwarded baskets + open one to continue
+        Route::get('/transaksi/incoming', [PenjualanController::class, 'incoming'])->name('transaksi.incoming');
+        Route::get('/transaksi/{id}/receive', [PenjualanController::class, 'receive'])->name('transaksi.receive');
     
         // Show completed transaction
         Route::get('/transaksi/selesai', [PenjualanController::class, 'selesai'])->name('transaksi.selesai');

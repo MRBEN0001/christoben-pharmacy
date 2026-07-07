@@ -4,22 +4,30 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Section;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     public function index()
     {
-        return view('user.index');
+        $sections = Section::orderBy('nama_section')->pluck('nama_section', 'id_section');
+
+        return view('user.index', compact('sections'));
     }
 
     public function data()
     {
-        $user = User::isNotAdmin()->orderBy('id', 'desc')->get();
+        $user = User::with('section')->isNotAdmin()->orderBy('id', 'desc')->get();
 
         return datatables()
             ->of($user)
             ->addIndexColumn()
+            ->addColumn('section', function ($user) {
+                return $user->section
+                    ? '<span class="label label-primary">'. e($user->section->nama_section) .'</span>'
+                    : '<span class="text-muted">—</span>';
+            })
             ->addColumn('aksi', function ($user) {
                 return '
                 <div class="btn-group">
@@ -28,7 +36,7 @@ class UserController extends Controller
                 </div>
                 ';
             })
-            ->rawColumns(['aksi'])
+            ->rawColumns(['section', 'aksi'])
             ->make(true);
     }
 
@@ -50,12 +58,20 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+            'id_section' => 'nullable|exists:section,id_section',
+        ]);
+
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = bcrypt($request->password);
         $user->level = 2;
         $user->foto = '/img/user.png';
+        $user->id_section = $request->id_section ?: null;
         $user->save();
 
         return response()->json('Data saved successfully', 200);
@@ -94,11 +110,19 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'password' => 'nullable|min:6',
+            'id_section' => 'nullable|exists:section,id_section',
+        ]);
+
         $user = User::find($id);
         $user->name = $request->name;
         $user->email = $request->email;
         if ($request->has('password') && $request->password != "") 
             $user->password = bcrypt($request->password);
+        $user->id_section = $request->id_section ?: null;
         $user->update();
 
         return response()->json('Data saved successfully', 200);

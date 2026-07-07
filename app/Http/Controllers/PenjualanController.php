@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use PDF;
+use App\Models\User;
 use App\Models\Produk;
 use App\Models\Section;
 use App\Models\Setting;
@@ -152,7 +153,7 @@ class PenjualanController extends Controller
     {
         $sectionId = $this->getSectionFromRequest($request);
 
-        $penjualan = Penjualan::with(['detail.produk.kategori', 'detail.produk.section', 'user'])
+        $penjualan = Penjualan::with(['detail.produk.kategori', 'detail.produk.section', 'user', 'checkoutSection'])
             ->where(function ($query) {
                 $query->where('bayar', '>', 0)
                     ->orWhere(function ($pending) {
@@ -180,6 +181,13 @@ class PenjualanController extends Controller
                 return tanggal_indonesia($penjualan->created_at, false);
             })
             ->addColumn('section', function ($penjualan) {
+                // Show the section that checked out the sale (e.g. PROVISIONS).
+                if ($penjualan->checkoutSection) {
+                    return $penjualan->checkoutSection->nama_section;
+                }
+
+                // Fallback for older sales (or admin checkouts with no section):
+                // derive from the products in the sale.
                 $sectionNames = $penjualan->detail->filter(function ($detail) {
                     return $detail->produk !== null && $detail->produk->section !== null;
                 })->map(function ($detail) {
@@ -301,8 +309,89 @@ class PenjualanController extends Controller
         return redirect()->route('transaksi.index');
     }
 
+    /**
+     * Picker (e.g. Pharmacy) forwards the current basket to Provisions.
+     */
+    public function sendToProvisions(Request $request)
+    {
+        $penjualan = Penjualan::with('detail')->findOrFail($request->id_penjualan);
+
+        if ((int) $penjualan->id_user !== (int) auth()->id()) {
+            return redirect()->route('transaksi.index')
+                ->with('error', 'You can only send your own basket.');
+        }
+
+        if ($penjualan->detail->isEmpty()) {
+            return redirect()->route('transaksi.index')
+                ->with('error', 'Add at least one product before sending to Provisions.');
+        }
+
+        $provisions = Section::whereRaw('UPPER(nama_section) = ?', [User::CHECKOUT_SECTION])->first();
+
+        if (! $provisions) {
+            return redirect()->route('transaksi.index')
+                ->with('error', 'No "PROVISIONS" section exists yet. Ask an admin to create it.');
+        }
+
+        $penjualan->handoff_status = 'pending_provisions';
+        $penjualan->handoff_from_section = auth()->user()->id_section;
+        $penjualan->update();
+
+        SaleStock::clearResumeSession($penjualan->id_penjualan);
+
+        // Immediately start a fresh basket for the picker.
+        $newBasket = new Penjualan();
+        $newBasket->id_member = null;
+        $newBasket->total_item = 0;
+        $newBasket->total_harga = 0;
+        $newBasket->diskon = 0;
+        $newBasket->bayar = 0;
+        $newBasket->diterima = 0;
+        $newBasket->id_user = auth()->id();
+        $newBasket->receipt_number = $this->generateReceiptNumber();
+        $newBasket->save();
+
+        session(['id_penjualan' => $newBasket->id_penjualan]);
+        session()->forget('last_penjualan_id');
+
+        return redirect()->route('transaksi.index')
+            ->with('success', 'Basket sent to Provisions successfully. A new basket has been started.');
+    }
+
+    /**
+     * Provisions inbox: baskets forwarded by pickers, awaiting checkout.
+     */
+    public function incoming()
+    {
+        $baskets = Penjualan::with(['detail.produk', 'user', 'user.section'])
+            ->where('handoff_status', 'pending_provisions')
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        return view('penjualan_detail.incoming', compact('baskets'));
+    }
+
+    /**
+     * Provisions opens a forwarded basket to continue selling / checkout.
+     */
+    public function receive($id)
+    {
+        $penjualan = Penjualan::where('handoff_status', 'pending_provisions')->findOrFail($id);
+
+        session(['id_penjualan' => $penjualan->id_penjualan]);
+        session()->forget('last_penjualan_id');
+        SaleStock::clearResumeSession($penjualan->id_penjualan);
+
+        return redirect()->route('transaksi.index');
+    }
+
     public function store(Request $request)
     {
+        if (auth()->user()->isPicker()) {
+            return redirect()->route('transaksi.index')
+                ->with('error', 'Your section cannot check out sales. Send the basket to Provisions instead.');
+        }
+
         $penjualan = Penjualan::findOrFail($request->id_penjualan);
         $saleId = $penjualan->id_penjualan;
         $detail = PenjualanDetail::with('produk')
@@ -360,6 +449,8 @@ class PenjualanController extends Controller
                 $penjualan->diskon = $request->diskon;
                 $penjualan->bayar = $request->bayar;
                 $penjualan->diterima = $request->diterima;
+                $penjualan->handoff_status = null;
+                $penjualan->checkout_section_id = auth()->user()->id_section;
                 $penjualan->update();
 
                 foreach ($productIds as $idProduk) {

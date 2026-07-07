@@ -26,6 +26,18 @@
                         </div>
                     </div>
                     <div class="form-group row">
+                        <label for="id_section" class="col-lg-3 col-lg-offset-1 control-label">Section</label>
+                        <div class="col-lg-6">
+                            <select name="id_section" id="id_section" class="form-control">
+                                <option value="">— No section (full access cashier) —</option>
+                                @foreach ($sections as $id => $name)
+                                    <option value="{{ $id }}">{{ $name }}</option>
+                                @endforeach
+                            </select>
+                            <span class="help-block">Pharmacy-type sections can only build a basket and send it to Provisions. Provisions can check out.</span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         <label for="password" class="col-lg-3 col-lg-offset-1 control-label">Password</label>
                         <div class="col-lg-6">
                             <input type="password" name="password" id="password" class="form-control" 

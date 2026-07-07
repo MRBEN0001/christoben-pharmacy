@@ -30,9 +30,17 @@ class PenjualanDetailController extends Controller
 
     public function index()
     {
-        $produk = Produk::orderBy('nama_produk')->get();
+        $user = auth()->user();
+
+        $produk = Produk::orderBy('nama_produk')
+            ->when($user->isSectionScoped(), function ($query) use ($user) {
+                $query->where('id_section', $user->id_section);
+            })
+            ->get();
+
         $member = Member::orderBy('nama')->get();
         $diskon = Setting::first()->diskon ?? 0;
+        $isPicker = $user->isPicker();
 
         // Check whether there are any transactions in progress
         if ($id_penjualan = session('id_penjualan')) {
@@ -67,7 +75,7 @@ class PenjualanDetailController extends Controller
                 $transactionDiskon = (int) PenjualanDetail::where('id_penjualan', $id_penjualan)->sum('diskon');
             }
 
-            return view('penjualan_detail.index', compact('produk', 'member', 'diskon', 'id_penjualan', 'penjualan', 'memberSelected', 'transactionDiskon'));
+            return view('penjualan_detail.index', compact('produk', 'member', 'diskon', 'id_penjualan', 'penjualan', 'memberSelected', 'transactionDiskon', 'isPicker'));
         } else {
             if (auth()->user()->level == 1) {
                 return redirect()->route('transaksi.baru');
@@ -132,18 +140,24 @@ class PenjualanDetailController extends Controller
         // $produk = Produk::where('id_produk', $request->id_produk)->first();
 
         $produk = null;
+        $user = auth()->user();
+
+        $baseQuery = Produk::query()->when($user->isSectionScoped(), function ($query) use ($user) {
+            $query->where('id_section', $user->id_section);
+        });
 
         if ($request->id_produk) {
-            $produk = Produk::find($request->id_produk);
+            $produk = (clone $baseQuery)->where('id_produk', $request->id_produk)->first();
         } elseif ($request->kode_produk) {
-            $produk = Produk::where('barcode', $request->kode_produk)
-                ->orWhere('kode_produk', $request->kode_produk)
-                ->first();
+            $produk = (clone $baseQuery)->where(function ($query) use ($request) {
+                $query->where('barcode', $request->kode_produk)
+                    ->orWhere('kode_produk', $request->kode_produk);
+            })->first();
         }
 
         if (! $produk) {
             return response()->json([
-                'message' => 'Product not found. Check the barcode or product code.',
+                'message' => 'Product not found in your section. Check the barcode or product code.',
             ], 400);
         }
 

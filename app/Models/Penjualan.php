@@ -27,4 +27,9 @@ class Penjualan extends Model
     {
         return $this->hasMany(PenjualanDetail::class, 'id_penjualan', 'id_penjualan');
     }
+
+    public function checkoutSection()
+    {
+        return $this->belongsTo(Section::class, 'checkout_section_id', 'id_section');
+    }
 }

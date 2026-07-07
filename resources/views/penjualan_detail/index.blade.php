@@ -37,6 +37,12 @@ Sales Transactions
 @endsection
 
 @section('content')
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ session('success') }}
+    </div>
+@endif
 @if(session('error'))
     <div class="alert alert-danger alert-dismissible">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -78,6 +84,7 @@ Sales Transactions
                     </thead>
                 </table>
 
+                @if(! $isPicker)
                 <div class="row">
                     <div class="col-lg-8">
                         <div class="tampil-bayar bg-primary"></div>
@@ -146,10 +153,20 @@ Sales Transactions
                         </form>
                     </div>
                 </div>
+                @endif
             </div>
 
             <div class="box-footer">
+                @if(! $isPicker)
                 <button type="submit" class="btn btn-success btn-sm btn-flat pull-right btn-simpan"><i class="fa fa-shopping-cart"></i> Check Out</button>
+                @else
+                <form action="{{ route('transaksi.kirim') }}" method="post" class="form-kirim" onsubmit="return confirm('Send this basket to Provisions? You will not be able to edit it afterwards.');">
+                    @csrf
+                    <input type="hidden" name="id_penjualan" value="{{ $id_penjualan }}">
+                    <span class="text-muted">Scan or select products, then send the basket to Provisions for checkout.</span>
+                    <button type="submit" class="btn btn-primary btn-sm btn-flat pull-right btn-kirim"><i class="fa fa-paper-plane"></i> Send to Provisions</button>
+                </form>
+                @endif
             </div>
         </div>
     </div>

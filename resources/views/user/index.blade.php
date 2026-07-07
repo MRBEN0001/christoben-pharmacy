@@ -22,6 +22,7 @@
                         <th width="5%">#</th>
                         <th>Name</th>
                         <th>Email</th>
+                        <th>Section</th>
                         <th width="15%"><i class="fa fa-cog"></i></th>
                     </thead>
                 </table>
@@ -50,6 +51,7 @@
                 {data: 'DT_RowIndex', searchable: false, sortable: false},
                 {data: 'name'},
                 {data: 'email'},
+                {data: 'section', searchable: false, sortable: false},
                 {data: 'aksi', searchable: false, sortable: false},
             ]
         });
@@ -96,6 +98,7 @@
             .done((response) => {
                 $('#modal-form [name=name]').val(response.name);
                 $('#modal-form [name=email]').val(response.email);
+                $('#modal-form [name=id_section]').val(response.id_section || '');
             })
             .fail((errors) => {
                 alert('Unable to display data');

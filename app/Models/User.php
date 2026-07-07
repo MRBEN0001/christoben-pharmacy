@@ -27,6 +27,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'level',
+        'foto',
+        'id_section',
     ];
 
     /**
@@ -62,5 +65,52 @@ class User extends Authenticatable
     public function scopeIsNotAdmin($query)
     {
         return $query->where('level', '!=', 1);
+    }
+
+    public function section()
+    {
+        return $this->belongsTo(Section::class, 'id_section', 'id_section');
+    }
+
+    /**
+     * The section this user checks out sales into (the "checkout point").
+     */
+    const CHECKOUT_SECTION = 'PROVISIONS';
+
+    public function isAdmin(): bool
+    {
+        return (int) $this->level === 1;
+    }
+
+    public function sectionName(): ?string
+    {
+        return $this->section ? strtoupper(trim($this->section->nama_section)) : null;
+    }
+
+    /**
+     * Provisions cashier: the checkout point that receives baskets from pickers.
+     */
+    public function isProvisions(): bool
+    {
+        return ! $this->isAdmin() && $this->sectionName() === self::CHECKOUT_SECTION;
+    }
+
+    /**
+     * Picker (e.g. Pharmacy): a section-scoped cashier who can only build a
+     * basket and forward it to Provisions, never check out.
+     */
+    public function isPicker(): bool
+    {
+        return ! $this->isAdmin()
+            && ! is_null($this->id_section)
+            && ! $this->isProvisions();
+    }
+
+    /**
+     * Whether this user is limited to a single section's products.
+     */
+    public function isSectionScoped(): bool
+    {
+        return ! $this->isAdmin() && ! is_null($this->id_section);
     }
 }
