@@ -240,6 +240,9 @@ class PenjualanController extends Controller
             ->addColumn('receipt_number', function ($penjualan) {
                 return $this->ensureReceiptNumber($penjualan);
             })
+            ->addColumn('payment_method', function ($penjualan) {
+                return ucfirst($penjualan->payment_method) ?? '-';
+            })
             ->editColumn('diskon', function ($penjualan) {
                 return '₦ '. format_uang($penjualan->diskon);
             })
@@ -439,6 +442,7 @@ class PenjualanController extends Controller
                 $penjualan->id_member = $request->id_member;
                 $penjualan->room_unique_details = $request->room_unique_details ?? null;
                 $penjualan->phone_number = $request->phone_number ?? null;
+                $penjualan->payment_method = $request->payment_method ?? 'cash';
 
                 if (empty($penjualan->receipt_number)) {
                     $penjualan->receipt_number = $this->generateReceiptNumber();

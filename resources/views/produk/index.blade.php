@@ -148,6 +148,11 @@
                 
             </div>
             @else
+            @if(auth()->user()->isPharmacy())
+            <div class="box-header with-border">
+                <div class="text-muted">PHARMACY view: only price updates are allowed here.</div>
+            </div>
+            @else
             <div class="box-header with-border">
                 <div class="btn-group">
                     <button onclick="addForm('{{ route('produk.add_product') }}')" class="btn btn-success btn-flat"><i class="fa fa-plus-circle"></i> Add New Product</button>
@@ -156,6 +161,7 @@
                     </a>
                 </div>
             </div>
+            @endif
             @endif
             <div class="box-body table-responsive">
                 <div id="product-filters" class="hide">
@@ -269,6 +275,45 @@
         </div>
     </div>
 </div>
+
+<!-- Update Price Modal -->
+@if(auth()->user()->isPharmacy())
+<div class="modal fade" id="modal-update-price" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title">Update Price</h4>
+            </div>
+            <div class="modal-body">
+                <form id="form-update-price">
+                    @csrf
+                    <input type="hidden" id="update-price-product-id" name="product_id">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" id="update-price-product-name" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Current Price</label>
+                        <input type="text" id="update-price-current-price" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_price">New Price <span class="text-danger">*</span></label>
+                        <input type="number" name="harga_jual" id="new_price" class="form-control" min="0" required autofocus>
+                        <span class="help-block text-danger" id="price-error" style="display:none;"></span>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-flat" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning btn-flat" onclick="submitUpdatePrice()"><i class="fa fa-tag"></i> Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 @endsection
 
 @push('scripts')
@@ -549,6 +594,51 @@
                 errorMessage = errors.responseJSON.message;
             }
             alert(errorMessage);
+        });
+    }
+
+    function showUpdatePriceForm(id, name, currentPrice) {
+        $('#update-price-product-id').val(id);
+        $('#update-price-product-name').val(name);
+        $('#update-price-current-price').val('₦ ' + currentPrice);
+        $('#new_price').val('');
+        $('#price-error').hide().text('');
+        $('#modal-update-price').modal('show');
+        $('#new_price').focus();
+    }
+
+    function submitUpdatePrice() {
+        let productId = $('#update-price-product-id').val();
+        let newPrice = parseFloat($('#new_price').val());
+        let currentPrice = parseFloat($('#update-price-current-price').val().replace(/[^\d]/g, ''));
+
+        $('#price-error').hide().text('');
+
+        if (isNaN(newPrice) || newPrice < 0) {
+            $('#price-error').show().text('Please enter a valid price');
+            return;
+        }
+
+        if (newPrice < currentPrice) {
+            $('#price-error').show().text('New price cannot be lower than current price (₦ ' + currentPrice + ')');
+            return;
+        }
+
+        $.post(`{{ url('/produk') }}/${productId}/update-price`, {
+            '_token': $('[name=csrf-token]').attr('content'),
+            'harga_jual': newPrice
+        })
+        .done((response) => {
+            $('#modal-update-price').modal('hide');
+            table.ajax.reload();
+            alert('Price updated successfully! New price: ₦ ' + response.new_price);
+        })
+        .fail((errors) => {
+            let errorMessage = 'Unable to update price';
+            if (errors.responseJSON && errors.responseJSON.message) {
+                errorMessage = errors.responseJSON.message;
+            }
+            $('#price-error').show().text(errorMessage);
         });
     }
 

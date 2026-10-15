@@ -122,11 +122,18 @@ class ProdukController extends Controller
         } else {
             // Add action column for non-admin users (add stock button and add product button)
             $datatable->addColumn('aksi', function ($produk) {
-                return '
-                <div class="btn-group">
-                    <button type="button" onclick="showAddStockForm(`'. $produk->id_produk .'`, `'. $produk->nama_produk .'`, `'. $produk->stok .'`)" class="btn btn-xs btn-success btn-flat" title="Add Stock"><i class="fa fa-plus"></i></button>
-                </div>
-                ';
+                $buttons = '<div class="btn-group">';
+
+                if (! auth()->user()->isPharmacy()) {
+                    $buttons .= '<button type="button" onclick="showAddStockForm(`'. $produk->id_produk .'`, `'. $produk->nama_produk .'`, `'. $produk->stok .'`)" class="btn btn-xs btn-success btn-flat" title="Add Stock"><i class="fa fa-plus"></i></button>';
+                }
+
+                if (auth()->user()->isPharmacy()) {
+                    $buttons .= '<button type="button" onclick="showUpdatePriceForm(`'. $produk->id_produk .'`, `'. $produk->nama_produk .'`, `'. $produk->harga_jual .'`)" class="btn btn-xs btn-warning btn-flat" title="Update Price"><i class="fa fa-tag"></i></button>';
+                }
+
+                $buttons .= '</div>';
+                return $buttons;
             });
         }
         
@@ -353,6 +360,36 @@ class ProdukController extends Controller
         return response()->json([
             'message' => 'Stock added successfully',
             'new_stock' => $produk->stok
+        ], 200);
+    }
+
+    public function updatePrice(Request $request, $id)
+    {
+        if (! auth()->user()->isPharmacy()) {
+            return response()->json(['message' => 'Unauthorized: only the PHARMACY section can update prices'], 403);
+        }
+
+        $request->validate([
+            'harga_jual' => 'required|numeric|min:0',
+        ]);
+
+        $produk = Produk::findOrFail($id);
+
+        $currentPrice = (float) $produk->harga_jual;
+        $newPrice = (float) $request->harga_jual;
+
+        if ($newPrice < $currentPrice) {
+            return response()->json([
+                'message' => 'New price (₦' . number_format($newPrice) . ') cannot be lower than current price (₦' . number_format($currentPrice) . ') — prices can only be increased.'
+            ], 422);
+        }
+
+        $produk->harga_jual = $newPrice;
+        $produk->update();
+
+        return response()->json([
+            'message' => 'Price updated successfully',
+            'new_price' => $produk->harga_jual
         ], 200);
     }
 

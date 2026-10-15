@@ -65,6 +65,7 @@
                         <th>Name</th>
                         <th>Phone Number</th>
                         <th>Receipt ID</th>
+                        <th>Payment Method</th>
                         <th>Quantity</th>
                         <th>Total Price</th>
                         <th>Discount</th>
@@ -125,6 +126,7 @@
                 {data: 'room_details'},
                 {data: 'phone_number'},
                 {data: 'receipt_number'},
+                {data: 'payment_method'},
                 {data: 'total_item'},
                 {data: 'total_harga'},
                 {data: 'diskon'},
