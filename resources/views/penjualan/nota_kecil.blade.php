@@ -57,6 +57,7 @@
     @if($penjualan->room_unique_details)
     <p>Name: {{ strtoupper($penjualan->room_unique_details) }}</p>
     @endif
+    <p>Payment Method: {{ ucfirst($penjualan->payment_method ?? 'cash') }}</p>
     <p class="text-center">===================================</p>
     
     <br>

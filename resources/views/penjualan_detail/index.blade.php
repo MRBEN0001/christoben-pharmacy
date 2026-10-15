@@ -150,6 +150,15 @@ Sales Transactions
                                     <input type="text" id="kembali" name="kembali" class="form-control" value="0" readonly>
                                 </div>
                             </div>
+                            <div class="form-group row">
+                                <label for="payment_method" class="col-lg-2 control-label">Payment Method</label>
+                                <div class="col-lg-8">
+                                    <select name="payment_method" id="payment_method" class="form-control">
+                                        <option value="cash" {{ ($penjualan->payment_method ?? 'cash') === 'cash' ? 'selected' : '' }}>Cash</option>
+                                        <option value="transfer" {{ ($penjualan->payment_method ?? 'cash') === 'transfer' ? 'selected' : '' }}>Transfer</option>
+                                    </select>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -299,6 +308,18 @@ Sales Transactions
                 $(this).val(0).select();
             }
             loadForm(0, $('#diterima').val());
+        });
+
+        $('#payment_method').on('change', function () {
+            let bayar = parseFloat($('#bayar').val()) || 0;
+
+            if ($(this).val() === 'transfer') {
+                $('#diterima').val(bayar > 0 ? Math.round(bayar) : 0);
+                loadForm(0, $('#diterima').val());
+            } else {
+                $('#diterima').val(0).select();
+                loadForm(0, $('#diterima').val());
+            }
         });
 
         // ✅ Submit transaction

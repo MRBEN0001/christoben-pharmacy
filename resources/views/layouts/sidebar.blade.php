@@ -96,6 +96,13 @@
             </li>
             @elseif (auth()->user()->isPicker())
             {{-- Picker (e.g. Pharmacy): can only build a basket and send it to Provisions --}}
+            @if (auth()->user()->isPharmacy())
+            <li>
+                <a href="{{ url('/produk') }}">
+                    <i class="fa fa-cubes"></i> <span>Products</span>
+                </a>
+            </li>
+            @endif
             <li>
                 <a href="{{ route('transaksi.baru') }}">
                     <i class="fa fa-cart-plus"></i> <span>New Sale</span>

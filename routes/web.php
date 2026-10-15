@@ -54,6 +54,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/produk/data', [ProdukController::class, 'data'])->name('produk.data');
     Route::get('/produk/take-stock', [ProdukController::class, 'takeStockPDF'])->name('produk.take_stock');
     Route::post('/produk/{id}/add-stock', [ProdukController::class, 'addStock'])->name('produk.add_stock');
+    Route::post('/produk/{id}/update-price', [ProdukController::class, 'updatePrice'])->name('produk.update_price');
     Route::post('/produk/add-product', [ProdukController::class, 'store'])->name('produk.add_product');
 
     // ================== Sales List (for all authenticated users: admin + cashiers) ==================

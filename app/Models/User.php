@@ -77,6 +77,11 @@ class User extends Authenticatable
      */
     const CHECKOUT_SECTION = 'PROVISIONS';
 
+    /**
+     * The picker section (e.g. Pharmacy) that can only raise prices.
+     */
+    const PICKER_SECTION = 'PHARMACY';
+
     public function isAdmin(): bool
     {
         return (int) $this->level === 1;
@@ -112,5 +117,15 @@ class User extends Authenticatable
     public function isSectionScoped(): bool
     {
         return ! $this->isAdmin() && ! is_null($this->id_section);
+    }
+
+    /**
+     * Whether this user belongs to the PHARMACY section (the picker that
+     * may raise selling prices).
+     */
+    public function isPharmacy(): bool
+    {
+        return ! $this->isAdmin()
+            && $this->sectionName() === self::PICKER_SECTION;
     }
 }

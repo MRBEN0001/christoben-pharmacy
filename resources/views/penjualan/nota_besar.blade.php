@@ -62,6 +62,16 @@
             <td>: {{ $penjualan->room_unique_details }}</td>
         </tr>
         @endif
+        @if($penjualan->phone_number)
+        <tr>
+            <td>Phone Number</td>
+            <td>: {{ $penjualan->phone_number }}</td>
+        </tr>
+        @endif
+        <tr>
+            <td>Payment Method</td>
+            <td>: {{ ucfirst($penjualan->payment_method ?? 'cash') }}</td>
+        </tr>
     </table>
 
     <table class="data" width="100%">
