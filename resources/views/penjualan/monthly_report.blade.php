@@ -79,6 +79,7 @@
                 <th width="12%">Name</th>
                 <th width="8%">Quantity</th>
                 <th width="10%">Total Price</th>
+                <th width="8%">Payment Method</th>
                 <th width="8%">Discount</th>
                 <th width="12%">Total Pay</th>
                 <th width="10%">Cashier</th>
@@ -110,6 +111,7 @@
                     <td>{{ $transaction->room_unique_details ?? '-' }}</td>
                     <td class="text-center">{{ format_uang($transaction->total_item) }}</td>
                     <td class="text-right">{{ format_uang($transaction->total_harga) }}</td>
+                    <td class="text-center">{{ ucfirst($transaction->payment_method ?? 'cash') }}</td>
                     <td class="text-center">{{ format_uang($transaction->diskon) }}</td>
                     <td class="text-right">NGN {{ format_uang($transaction->bayar) }}</td>
                     <td>{{ $transaction->user ? $transaction->user->name : '-' }}</td>

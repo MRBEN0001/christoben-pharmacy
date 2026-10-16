@@ -65,6 +65,7 @@
                                 <th>Receipt ID</th>
                                 <th>Quantity</th>
                                 <th>Total Price</th>
+                                <th>Payment Method</th>
                                 <th>Discount</th>
                                 <th>Total Pay</th>
                                 <th>Cashier</th>
@@ -96,6 +97,7 @@
                                     <td>{{ $transaction->receipt_number ?? '-' }}</td>
                                     <td class="text-center">{{ format_uang($transaction->total_item) }}</td>
                                     <td class="text-right">₦ {{ format_uang($transaction->total_harga) }}</td>
+                                    <td class="text-center">{{ ucfirst($transaction->payment_method ?? 'cash') }}</td>
                                     <td class="text-center">{{ format_uang($transaction->diskon) }}</td>
                                     <td class="text-right">₦ {{ format_uang($transaction->bayar) }}</td>
                                     <td>{{ $transaction->user->name ?? '-' }}</td>
@@ -103,7 +105,7 @@
                                 @endforeach
                             @else
                                 <tr>
-                                    <td colspan="10" class="text-center">
+                                    <td colspan="11" class="text-center">
                                         <strong>No room sales found for {{ tanggal_indonesia($selectedDate, false) }}</strong>
                                     </td>
                                 </tr>
@@ -111,7 +113,7 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <th colspan="8" class="text-right" style="font-size: 16px;">GRAND TOTAL:</th>
+                                <th colspan="9" class="text-right" style="font-size: 16px;">GRAND TOTAL:</th>
                                 <th class="text-right" style="font-size: 16px; color: #3c8dbc;">₦ {{ format_uang($grandTotal) }}</th>
                                 <th></th>
                             </tr>
