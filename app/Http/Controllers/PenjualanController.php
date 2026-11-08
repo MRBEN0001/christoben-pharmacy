@@ -634,7 +634,8 @@ class PenjualanController extends Controller
 
     public function monthlyReportPDF(Request $request)
     {
-        set_time_limit(300);
+        ini_set('max_execution_time', 0);
+        ini_set('memory_limit', '512M');
 
         $sectionId = $this->getSectionFromRequest($request);
         $sectionName = $this->getSectionName($sectionId);
@@ -649,15 +650,24 @@ class PenjualanController extends Controller
             $endDate = date('Y-m-t', strtotime("$previousYear-$previousMonth-01"));
         }
 
-        $transactions = Penjualan::select('id_penjualan', 'created_at', 'receipt_number', 'room_unique_details', 'total_item', 'total_harga', 'diskon', 'bayar', 'id_user')
+        $query = Penjualan::select('id_penjualan', 'created_at', 'receipt_number', 'room_unique_details', 'total_item', 'total_harga', 'diskon', 'bayar', 'id_user')
             ->with(['detail:id_penjualan_detail,id_penjualan,id_produk,jumlah,subtotal,harga_jual', 'detail.produk:id_produk,nama_produk,id_section', 'detail.produk.section:id_section,nama_section', 'user:id,name'])
             ->where('total_item', '>', 0)
             ->where('bayar', '>', 0)
             ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
-            ->orderBy('created_at', 'asc')
-            ->get();
+            ->orderBy('created_at', 'asc');
 
-        $transactions = $this->applySectionFilter($transactions, $sectionId);
+        if ($sectionId) {
+            $query->whereHas('detail.produk', function ($q) use ($sectionId) {
+                $q->where('id_section', $sectionId);
+            });
+        }
+
+        $transactions = $query->get();
+
+        if ($sectionId) {
+            $transactions = $this->applySectionFilter($transactions, $sectionId);
+        }
 
         $grandTotal = $transactions->sum('bayar');
         $totalTransactions = $transactions->count();
